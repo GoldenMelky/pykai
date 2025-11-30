@@ -45,6 +45,34 @@ Qua avviene tutto il processo di download del file, modifica tramite mikai, e up
 
 ## Installazione
 
-Dentro Termux esegui questo script
+### Termux
 
+Installiamo debian
+
+```bash
+pkg update
+pkg upgrade -y
+pkg install wget openssl-tool proot -y
+wget https://raw.githubusercontent.com/EXALAB/AnLinux-Resources/master/Scripts/Installer/Debian/debian.sh
+bash debian.sh
+```
+
+Adesso startiamo debian, installiamo le dipendenze e cloniamo la repo 
+
+```bash
+./start-debian.sh
+```
+```bash
+sudo mkdir -p /usr/share/keyrings
+wget -qO- "https://pi-apps-coders.github.io/box64-debs/KEY.gpg" | sudo gpg --dearmor -o /usr/share/keyrings/box64-archive-keyring.gp
+echo "Types: deb
+URIs: https://Pi-Apps-Coders.github.io/box64-debs/debian
+Suites: ./
+Signed-By: /usr/share/keyrings/box64-archive-keyring.gpg" | sudo tee /etc/apt/sources.list.d/box64.sources >/dev/null
+
+apt update
+apt upgrade
+apt install box64-generic-arm -y
+apt install python3 git -y
+```
 ​
