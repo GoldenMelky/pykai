@@ -4,10 +4,12 @@
 Automate
 
 > Per attendere l’usb del flipper e auto connettersi e eseguire i comandi su termux
+> DA SCARICSRE DA F-DROID
 
 Termux
 
 > Per eseguire Mikai
+> DA SCARICARE DA F-DROID
 
 Termux:Tasker
 
