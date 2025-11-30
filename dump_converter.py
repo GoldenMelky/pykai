@@ -12,32 +12,36 @@ import sys
 HEX_BYTE = re.compile(r'^[0-9A-Fa-f]{2}$')
 
 def parse_flipper_text(path):
+    if "Block" in path:
+        content = path.splitlines()
+    else:
+        with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.readlines()
     uid_bytes = None
     blocks = {}
-    with open(path, 'r', encoding='utf-8', errors='ignore') as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            if line.upper().startswith('UID:'):
-                parts = line.split(':',1)[1].strip().split()
-                hex_tokens = [p for p in parts if HEX_BYTE.match(p)]
-                if len(hex_tokens) >= 1:
-                    uid_bytes = bytes(int(h,16) for h in hex_tokens)
-                continue
-            m = re.match(r'Block\s+(\d+)\s*:\s*(.*)', line, flags=re.IGNORECASE)
-            if m:
-                idx = int(m.group(1))
-                rest = m.group(2).strip()
-                tokens = [t for t in re.split(r'[\s,]+', rest) if t and HEX_BYTE.match(t)]
-                if len(tokens) != 4:
-                    parsed = [int(t,16) for t in tokens]
-                    while len(parsed) < 4:
-                        parsed.append(0xFF)
-                    blocks[idx] = bytes(parsed[:4])
-                else:
-                    blocks[idx] = bytes(int(t,16) for t in tokens)
-                continue
+    for line in content:
+        line = line.strip()
+        if not line:
+            continue
+        if line.upper().startswith('UID:'):
+            parts = line.split(':',1)[1].strip().split()
+            hex_tokens = [p for p in parts if HEX_BYTE.match(p)]
+            if len(hex_tokens) >= 1:
+                uid_bytes = bytes(int(h,16) for h in hex_tokens)
+            continue
+        m = re.match(r'Block\s+(\d+)\s*:\s*(.*)', line, flags=re.IGNORECASE)
+        if m:
+            idx = int(m.group(1))
+            rest = m.group(2).strip()
+            tokens = [t for t in re.split(r'[\s,]+', rest) if t and HEX_BYTE.match(t)]
+            if len(tokens) != 4:
+                parsed = [int(t,16) for t in tokens]
+                while len(parsed) < 4:
+                    parsed.append(0xFF)
+                blocks[idx] = bytes(parsed[:4])
+            else:
+                blocks[idx] = bytes(int(t,16) for t in tokens)
+            continue
     if not blocks:
         raise ValueError("No block data found in Flipper file.")
     max_idx = max(blocks.keys())
@@ -62,7 +66,8 @@ def flipper2mikai(input_path, output_path):
         f.write(out)
     print(f"Wrote Mikai raw file: {output_path} ({len(out)} bytes). UID written reversed: {uid.hex().upper()} -> {uid_reversed.hex().upper()}")
 
-def mikai2flipper(input_path, output_path):
+
+def mikai2flipper(input_path, output_path, rettxt = False):
     raw = Path(input_path).read_bytes()
     if len(raw) < 8:
         raise ValueError("Input raw file is too small.")
@@ -84,6 +89,7 @@ def mikai2flipper(input_path, output_path):
     text = '\n'.join(lines) + '\n'
     Path(output_path).write_text(text, encoding='utf-8')
     print(f"Wrote Flipper text file: {output_path}. Blocks: {len(blocks)}, UID: {uid_display.hex().upper()}")
+    return text
 
 def main():
     p = argparse.ArgumentParser(description="Convert between Flipper text dumps and Mikai raw dumps.")
