@@ -63,16 +63,20 @@ Adesso startiamo debian, installiamo le dipendenze e cloniamo la repo
 ./start-debian.sh
 ```
 ```bash
-sudo mkdir -p /usr/share/keyrings
-wget -qO- "https://pi-apps-coders.github.io/box64-debs/KEY.gpg" | sudo gpg --dearmor -o /usr/share/keyrings/box64-archive-keyring.gp
+mkdir -p /usr/share/keyrings
+wget -qO- "https://pi-apps-coders.github.io/box64-debs/KEY.gpg" | gpg --dearmor -o /usr/share/keyrings/box64-archive-keyring.gp
 echo "Types: deb
 URIs: https://Pi-Apps-Coders.github.io/box64-debs/debian
 Suites: ./
-Signed-By: /usr/share/keyrings/box64-archive-keyring.gpg" | sudo tee /etc/apt/sources.list.d/box64.sources >/dev/null
+Signed-By: /usr/share/keyrings/box64-archive-keyring.gpg" | tee /etc/apt/sources.list.d/box64.sources >/dev/null
 
 apt update
 apt upgrade
 apt install box64-generic-arm -y
 apt install python3 git -y
+git clone https://github.com/GoldenMelky/pykai/
+cd pykai
+ln -s ./bin/mikai ./mikai
 ```
 ​
+Poi installa il flow che trovi nella repo, devi modificare i blocchi USB in modo che combacino con i tuoi ID del Flipper Zero (clicca Use attached device), dopodiche prega che funzioni
